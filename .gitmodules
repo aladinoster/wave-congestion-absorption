@@ -1,0 +1,4 @@
+[submodule "symupy"]
+	path = symupy
+	url = https://github.com/aladinoster/symupy.git
+	branch = dev
