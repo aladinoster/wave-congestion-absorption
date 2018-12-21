@@ -8,17 +8,35 @@
     3. A platoon traveling upstream should absorb a congestion wave
 
 """
+# Python internals
 import os
-from ctypes import cdll, create_string_buffer, c_int, byref, c_double
 
+# Symupy inputs
 from symupy.func import Simulator, Simulation, find_path_file
 
-sim_path = find_path_file('wave-absorption.xml')
-print(sim_path)
+if __name__ == "__main__":
 
-simulation = Simulation(sim_path)
+    # Load simulation
+    sim_path = find_path_file('wave-absorption.xml')
+    print(f"Simulation under consideration:{sim_path}")
 
-simulation.run_Simulation()
+    # Declare simulation
+    simulation = Simulation(sim_path)
+
+    # 1. Declare V2V Network based on the vehicle type?
+
+    # 2. What is fundamental for the simulation is the XML file.
+    #    The idea is that the scenario should run independently of having modifycations via this API. so eventually you can just launch your simulation via this API.
+
+    # 3. Modify simulation such that she may accept a V2V object
+    #    If the simulation detects a network object the simulation
+    #    is enriched with the V2V characteristics.
+
+    # 4. Control means that
+    #    A control means a manipulation for 1 variable of a vehicle,       acceleration or speed
+
+    # Run simulation
+    simulation.run_Simulation()
 
 
 # """
