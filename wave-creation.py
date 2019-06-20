@@ -7,28 +7,8 @@
 """
 
 import os
-import numpy as np
 
 from symupy.api import Simulation
-
-
-def create_internal_points(stcor: tuple, endcor: tuple, n_points: int = 100) -> tuple:
-    """Compute a set of internal points for a ring-road starting at stcor and ending at edcor  
-    
-    
-    :return: tuple containing x_points, y_points
-    :rtype: tuple 
-    """
-    st_pt = np.array(stcor)
-    ed_pt = np.array(endcor)
-    radious = np.linalg.norm(ed_pt - st_pt) / 2
-    center = (st_pt + ed_pt) / 2
-    y_range = np.linspace(center[1] - radious, center[1] + radious, n_points)
-    x_range = center[0] + np.sqrt(radious ** 2 - (y_range - center[1]) ** 2)
-    return (x_range, y_range)
-
-
-x, y = create_internal_points((1, 0), (1, 1))
 
 if __name__ == "__main__":
 

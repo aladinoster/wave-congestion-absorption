@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ROOT_SYMUBRUIT xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="reseau.xsd" version="2.05">
+    <SIMULATIONS>
+        <SIMULATION id="simID" pasdetemps="0.1" debut="07:00:00" fin="07:04:00" loipoursuite="exacte" comportementflux="iti" date="2019-06-19" titre="semi_ring_simulation" proc_deceleration="false" seed="1">
+            <RESTITUTION trace_route="false" trajectoires="true" debug="false" debug_matrice_OD="false" debug_SAS="false" csv="true"/>
+        </SIMULATION>
+    </SIMULATIONS>
+    <TRAFICS>
+        <TRAFIC id="trafID" accbornee="true" coeffrelax="4" chgtvoie_ghost="false">
+            <TRONCONS>
+                <TRONCON id="Zone_A"/>
+                <TRONCON id="Zone_B"/>
+                <TRONCON id="Zone_C"/>
+            </TRONCONS>
+            <TYPES_DE_VEHICULE>
+                <TYPE_DE_VEHICULE id="CAV" w="-6.25" kx="0.16" vx="25">
+                    <ACCELERATION_PLAGES>
+                        <ACCELERATION_PLAGE ax="1.5" vit_sup="5.8"/>
+                        <ACCELERATION_PLAGE ax="1" vit_sup="8"/>
+                        <ACCELERATION_PLAGE ax="0.5" vit_sup="infini"/>
+                    </ACCELERATION_PLAGES>
+                </TYPE_DE_VEHICULE>
+                <TYPE_DE_VEHICULE id="HDV" w="-6.25" kx="0.16" vx="25">
+                    <ACCELERATION_PLAGES>
+                        <ACCELERATION_PLAGE ax="1.5" vit_sup="5.8"/>
+                        <ACCELERATION_PLAGE ax="1" vit_sup="8"/>
+                        <ACCELERATION_PLAGE ax="0.5" vit_sup="infini"/>
+                    </ACCELERATION_PLAGES>
+                </TYPE_DE_VEHICULE>
+            </TYPES_DE_VEHICULE>
+            <EXTREMITES>
+                <EXTREMITE id="Ext_In">
+                    <FLUX_GLOBAL>
+                        <FLUX>
+                            <DEMANDES>
+                                <DEMANDE niveau="0.4" duree="30"/>
+                                <DEMANDE niveau="0.4" duree="30"/>
+                            </DEMANDES>
+                            <REP_DESTINATIONS>
+                                <REP_DESTINATION>
+                                    <DESTINATION coeffOD="1" sortie="Ext_Out"/>
+                                </REP_DESTINATION>
+                            </REP_DESTINATIONS>
+                        </FLUX>
+                        <REP_TYPEVEHICULES>
+                            <REP_TYPEVEHICULE duree="30" coeffs="1 0"/>
+                            <REP_TYPEVEHICULE duree="30" coeffs="0 1"/>
+                        </REP_TYPEVEHICULES>
+                    </FLUX_GLOBAL>
+                </EXTREMITE>
+                <EXTREMITE id="Ext_Out"/>
+            </EXTREMITES>
+            <CONNEXIONS_INTERNES>
+                <CONNEXION_INTERNE id="A_to_B"/>
+                <CONNEXION_INTERNE id="B_to_C"/>
+                <CONNEXION_INTERNE id="C_to_D"/>
+            </CONNEXIONS_INTERNES>
+        </TRAFIC>
+    </TRAFICS>
+    <RESEAUX>
+        <RESEAU id="resID">
+            <TRONCONS>
+                <TRONCON id="Zone_A" id_eltamont="Ext_In" id_eltaval="A_to_B" extremite_amont="-300 0" extremite_aval="0 0" largeur_voie="3">
+                </TRONCON>
+                <TRONCON id="Zone_B" id_eltamont="A_to_B" id_eltaval="B_to_C" extremite_amont="0 0" extremite_aval="150 150" largeur_voie="3">
+                    <POINTS_INTERNES>
+                        <POINT_INTERNE coordonnees="13.073361412148724 0.570795286238166"/>
+                        <POINT_INTERNE coordonnees="26.04722665003955 2.2788370481688105"/>
+                        <POINT_INTERNE coordonnees="38.82285676537811 5.111126056639762"/>
+                        <POINT_INTERNE coordonnees="51.303021498850306 9.046106882113747"/>
+                        <POINT_INTERNE coordonnees="63.392739261104914 14.05383194450252"/>
+                        <POINT_INTERNE coordonnees="74.99999999999999 20.0961894323342"/>
+                        <POINT_INTERNE coordonnees="86.03646545265691 27.127193356651233"/>
+                        <POINT_INTERNE coordonnees="96.41814145298089 35.09333353215328"/>
+                        <POINT_INTERNE coordonnees="106.06601717798212 43.93398282201787"/>
+                        <POINT_INTERNE coordonnees="114.9066664678467 53.581858547019095"/>
+                        <POINT_INTERNE coordonnees="122.87280664334875 63.96353454734306"/>
+                        <POINT_INTERNE coordonnees="129.9038105676658 74.99999999999999"/>
+                        <POINT_INTERNE coordonnees="135.94616805549748 86.60726073889509"/>
+                        <POINT_INTERNE coordonnees="140.95389311788625 98.69697850114969"/>
+                        <POINT_INTERNE coordonnees="144.88887394336024 111.17714323462187"/>
+                        <POINT_INTERNE coordonnees="147.7211629518312 123.95277334996044"/>
+                        <POINT_INTERNE coordonnees="149.42920471376183 136.92663858785127"/>
+                    </POINTS_INTERNES>
+                </TRONCON>
+                <TRONCON id="Zone_C" id_eltamont="B_to_C" id_eltaval="C_to_D" extremite_amont="150 150" extremite_aval="0 300" largeur_voie="3">
+                    <POINTS_INTERNES>
+                        <POINT_INTERNE coordonnees="149.42920471376183 163.07336141214873"/>
+                        <POINT_INTERNE coordonnees="147.7211629518312 176.04722665003956"/>
+                        <POINT_INTERNE coordonnees="144.88887394336024 188.8228567653781"/>
+                        <POINT_INTERNE coordonnees="140.95389311788625 201.3030214988503"/>
+                        <POINT_INTERNE coordonnees="135.94616805549748 213.3927392611049"/>
+                        <POINT_INTERNE coordonnees="129.9038105676658 225.0"/>
+                        <POINT_INTERNE coordonnees="122.87280664334877 236.0364654526569"/>
+                        <POINT_INTERNE coordonnees="114.90666646784672 246.41814145298088"/>
+                        <POINT_INTERNE coordonnees="106.06601717798213 256.06601717798213"/>
+                        <POINT_INTERNE coordonnees="96.4181414529809 264.9066664678467"/>
+                        <POINT_INTERNE coordonnees="86.03646545265694 272.8728066433488"/>
+                        <POINT_INTERNE coordonnees="75.00000000000001 279.9038105676658"/>
+                        <POINT_INTERNE coordonnees="63.392739261104914 285.9461680554975"/>
+                        <POINT_INTERNE coordonnees="51.30302149885032 290.95389311788625"/>
+                        <POINT_INTERNE coordonnees="38.82285676537814 294.88887394336024"/>
+                        <POINT_INTERNE coordonnees="26.047226650039562 297.72116295183116"/>
+                        <POINT_INTERNE coordonnees="13.073361412148719 299.4292047137618"/>
+                    </POINTS_INTERNES>
+                </TRONCON>
+                <TRONCON id="Zone_D" id_eltamont="C_to_D" id_eltaval="Ext_Out" extremite_amont="0 300" extremite_aval="-300 300" largeur_voie="3">
+                </TRONCON>
+            </TRONCONS>
+            <CONNEXIONS>
+                <REPARTITEURS>
+                    <REPARTITEUR id="A_to_B">
+                        <MOUVEMENTS_AUTORISES>
+                            <MOUVEMENT_AUTORISE id_troncon_amont="Zone_A">
+                                <MOUVEMENT_SORTIES>
+                                    <MOUVEMENT_SORTIE id_troncon_aval="Zone_B"/>
+                                </MOUVEMENT_SORTIES>
+                            </MOUVEMENT_AUTORISE>
+                        </MOUVEMENTS_AUTORISES>
+                    </REPARTITEUR>
+                    <REPARTITEUR id="B_to_C">
+                        <MOUVEMENTS_AUTORISES>
+                            <MOUVEMENT_AUTORISE id_troncon_amont="Zone_B">
+                                <MOUVEMENT_SORTIES>
+                                    <MOUVEMENT_SORTIE id_troncon_aval="Zone_C"/>
+                                </MOUVEMENT_SORTIES>
+                            </MOUVEMENT_AUTORISE>
+                        </MOUVEMENTS_AUTORISES>
+                    </REPARTITEUR>
+                    <REPARTITEUR id="C_to_D">
+                        <MOUVEMENTS_AUTORISES>
+                            <MOUVEMENT_AUTORISE id_troncon_amont="Zone_C">
+                                <MOUVEMENT_SORTIES>
+                                    <MOUVEMENT_SORTIE id_troncon_aval="Zone_D"/>
+                                </MOUVEMENT_SORTIES>
+                            </MOUVEMENT_AUTORISE>
+                        </MOUVEMENTS_AUTORISES>
+                    </REPARTITEUR>
+                </REPARTITEURS>
+                <EXTREMITES>
+                    <EXTREMITE id="Ext_In"/>
+                    <EXTREMITE id="Ext_Out"/>
+                </EXTREMITES>
+            </CONNEXIONS>
+        </RESEAU>
+    </RESEAUX>
+    <SCENARIOS>
+        <SCENARIO id="defaultScenario" simulation_id="simID" trafic_id="trafID" reseau_id="resID" dirout="data" prefout="simout_data"/>
+    </SCENARIOS>
+</ROOT_SYMUBRUIT>
