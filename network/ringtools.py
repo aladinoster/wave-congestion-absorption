@@ -53,7 +53,8 @@ def extract_points(filename):
 def inject_xml_data(filename):
     troncons = extract_element_troncons(filename)[1:-1]
     points = extract_points(filename)
-    int_points = create_internal_points(points)
+    center = np.add.reduce(points) / 4
+    int_points = create_internal_points(points,center )
     for i, tp in enumerate(zip(int_points, troncons)):
         xml_file = create_xml_data(tp[0])
         tp[1].append(xml_file)
