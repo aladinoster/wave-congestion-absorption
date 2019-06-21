@@ -54,7 +54,7 @@ def inject_xml_data(filename):
     troncons = extract_element_troncons(filename)[1:-1]
     points = extract_points(filename)
     center = np.add.reduce(points) / 4
-    int_points = create_internal_points(points,center )
+    int_points = create_internal_points(points, center)
     for i, tp in enumerate(zip(int_points, troncons)):
         xml_file = create_xml_data(tp[0])
         tp[1].append(xml_file)
@@ -133,18 +133,20 @@ def create_xml_simulation() -> ET.ElementTree:
     }
     simulation = fix_values(simulation, DCT_SIMULATION)
 
-    # Fill traffic
+    # Add traffic
     trafics = ET.SubElement(root, "TRAFICS")
     trafic = ET.SubElement(trafics, "TRAFIC")
     DCT_TRAFIC = {"id": "trafID", "accbornee": "true", "coeffrelax": "4", "chgtvoie_ghost": "false"}
     trafic = fix_values(trafic, DCT_TRAFIC)
-    # Fill troncon
+
+    # Add troncon
     troncons = ET.SubElement(trafic, "TRONCONS")
     TP_TRONCONS = ("Zone_A", "Zone_B", "Zone_C", "Zone_D", "Zone_E", "Zone_F")
     for tron in TP_TRONCONS:
         troncon = ET.SubElement(troncons, "TRONCON")
         troncon.set("id", tron)
-    # Fill vehicle_type
+
+    # Add vehicle_type
     vehtypes = ET.SubElement(trafic, "TYPES_DE_VEHICULE")
     TP_VEHTYPES = (
         {"id": "CAV", "w": "-5", "kx": "0.12", "vx": "25"},
@@ -174,12 +176,110 @@ def create_xml_simulation() -> ET.ElementTree:
             flux_global = ET.SubElement(extreme, "FLUX_GLOBAL")
             flux = ET.SubElement(flux_global, "FLUX")
 
-    #     item1 = ET.SubElement(items, "item")
-    #     item2 = ET.SubElement(items, "item")
-    #     item1.set("name", "item1")
-    #     item2.set("name", "item2")
-    #     item1.text = "item1abc"
-    #     item2.text = "item2abc"
+    # Adding internal connections
+    connections = ET.SubElement(trafic, "CONNEXIONS_INTERNES")
+    TP_CONNECTIONS = ("A_to_B", "B_to_C", "C_to_D", "D_to_E")
+    for con in TP_CONNECTIONS:
+        connection = ET.SubElement(connections, "CONNEXION_INTERNE")
+        connection.set("id", con)
+
+    # Adding network links + internal points
+    networks = ET.SubElement(root, "RESEAUX")
+    network = ET.SubElement(networks, "RESEAU")
+    DCT_NETWORK_INFO = {"id": "resID"}
+
+    network = fix_values(network, DCT_NETWORK_INFO)
+
+    radious = 200
+
+    TP_LINKS = (
+        {
+            "id": "Zone_A",
+            "id_eltamont": "Ext_In",
+            "id_eltaval": "A_to_B",
+            "extremite_amont": f"-{np.pi * radious} 0",
+            "extremite_aval": "0 0",
+        },
+        {
+            "id": "Zone_B",
+            "id_eltamont": "A_to_B",
+            "id_eltaval": "B_to_C",
+            "extremite_amont": "0 0",
+            "extremite_aval": f"{radious} {radious}",
+        },
+        {
+            "id": "Zone_C",
+            "id_eltamont": "B_to_C",
+            "id_eltaval": "C_to_D",
+            "extremite_amont": f"{radious} {radious}",
+            "extremite_aval": f"0 {2 * radious}",
+        },
+        {
+            "id": "Zone_D",
+            "id_eltamont": "C_to_D",
+            "id_eltaval": "D_to_E",
+            "extremite_amont": f"0 {2 * radious}",
+            "extremite_aval": f"{-radious} {radious}",
+        },
+        {
+            "id": "Zone_E",
+            "id_eltamont": "D_to_E",
+            "id_eltaval": "A_to_B",
+            "extremite_amont": f"{-radious} {radious}",
+            "extremite_aval": "0 0",
+        },
+        {
+            "id": "Zone_F",
+            "id_eltamont": "C_to_D",
+            "id_eltaval": "Ext_Out",
+            "extremite_amont": f"0 {2 * radious}",
+            "extremite_aval": f"{-np. pi * radious} {2 * radious}",
+        },
+    )
+
+    links = ET.SubElement(network, "TRONCONS")
+
+    points_circle = [(0, 0), (radious, radious), (0, 2 * radious), (-radious, radious)]
+    circle_center = np.add.reduce([np.array(v) for v in points_circle]) / 4
+
+    internal_points = create_internal_points(points_circle, circle_center)
+
+    TP_LINKS_INTPTS = ("Zone_B", "Zone_C", "Zone_D", "Zone_E")
+    DCT_LINKS_INTPTS = dict(zip(TP_LINKS_INTPTS, internal_points))
+
+    for tr in TP_LINKS:
+        link = ET.SubElement(links, "TRONCON")
+        link = fix_values(link, tr)
+        if tr.get("id") in DCT_LINKS_INTPTS.keys():
+            intpoints = ET.SubElement(link, "POINTS_INTERNES")
+            for x, y in DCT_LINKS_INTPTS.get(tr.get("id")):
+                ET.SubElement(intpoints, "POINT_INTERNE", coordonnees=f"{x} {y}")
+
+    # Adding Traffic assingment
+    assignments = ET.SubElement(network, "CONNEXIONS")
+    distributors = ET.SubElement(assignments, "REPARTITEURS")
+
+    for dist in TP_CONNECTIONS:
+        distributor = ET.SubElement(distributors, "REPARTITEUR")
+        distributor.set("id", dist)
+        #TODO: Add traffic assignment for each distributor 
+        #TODO: Create network graph directed graph first and then infer from there
+    
+
+    endings = ET.SubElement(network, "EXTREMITES")
+    for ending in TP_EXTREMES:
+        ET.SubElement(endings, "EXTREMITE", id=ending)
+
+    # Adding Single Route
+    routes = ET.SubElement(network, "ROUTES")
+    route = ET.SubElement(routes, "ROUTE", description="In to Out", id="R01")
+    route_path = ET.SubElement(route, "TRONCONS")
+
+    laps = 5
+    TP_ROUTE = ("Zone_A",) + ("Zone_B", "Zone_C", "Zone_D", "Zone_E") * laps + ("Zone_F",)
+
+    for lnk in TP_ROUTE:
+        ET.SubElement(route_path, "TRONCON", id=lnk)
 
     tree = ET.ElementTree(root)
     return tree
