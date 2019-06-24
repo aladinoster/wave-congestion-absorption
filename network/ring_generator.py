@@ -486,16 +486,22 @@ def create_xml_simulation(N_HDV: int, N_CAV: int = 2) -> ET.ElementTree:
     # Exchange in between RoadNetwork and Linkage network
     LinkageGraph = create_line_graph(RoadGraph)
 
+    dct_distributors = {crs: [] for crs in TP_CONNECTIONS}
+
     for edge in LinkageGraph.edges():
-        distributor = ET.SubElement(distributors, "REPARTITEUR")
         node = LinkageGraph.get_edge_data(*edge).get("id")
+        dct_distributors.get(node).append(edge)
+
+    for node, edges in dct_distributors.items():
+        distributor = ET.SubElement(distributors, "REPARTITEUR")
         distributor.set("id", node)
         ath_mvts = ET.SubElement(distributor, "MOUVEMENTS_AUTORISES")
-        ath_mvt = ET.SubElement(ath_mvts, "MOUVEMENT_AUTORISE")
-        ath_mvt.set("id_troncon_amont", edge[0])
-        out_mvts = ET.SubElement(ath_mvt, "MOUVEMENT_SORTIES")
-        out_mvt = ET.SubElement(out_mvts, "MOUVEMENT_SORTIE")
-        out_mvt.set("id_troncon_aval", edge[1])
+        for edge in edges:
+            ath_mvt = ET.SubElement(ath_mvts, "MOUVEMENT_AUTORISE")
+            ath_mvt.set("id_troncon_amont", edge[0])
+            out_mvts = ET.SubElement(ath_mvt, "MOUVEMENT_SORTIES")
+            out_mvt = ET.SubElement(out_mvts, "MOUVEMENT_SORTIE")
+            out_mvt.set("id_troncon_aval", edge[1])
 
     endings = ET.SubElement(assignments, "EXTREMITES")
     for ending in TP_EXTREMES:
