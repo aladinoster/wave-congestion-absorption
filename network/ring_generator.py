@@ -155,7 +155,7 @@ def transform_dict_data(orig_dct: dict, key: str):
     return KEYTYPEMAP.get(key, orig_dct.get(key))(orig_dct.get(key))
 
 
-def create_xml_simulation(N_HDV: int, N_CAV: int = 2) -> ET.ElementTree:
+def create_xml_simulation(N_HDV: int, N_CAV: int = 2, laps: int = 5) -> ET.ElementTree:
 
     # --------------------------------------------------------------
     # Traffic simulation parameters
@@ -163,6 +163,7 @@ def create_xml_simulation(N_HDV: int, N_CAV: int = 2) -> ET.ElementTree:
     # Scenario design
     # Sequence of vehicles
     SEQ_1 = (("HDV", N_HDV // 2), ("CAV", 1), ("HDV", N_HDV // 2), ("CAV", N_CAV - 1), ("NOVEH", 1))
+    print(f"Scenario:{SEQ_1}")
 
     # Simulation info
     DCT_SIMULATION = {
@@ -283,7 +284,6 @@ def create_xml_simulation(N_HDV: int, N_CAV: int = 2) -> ET.ElementTree:
     )
 
     # Number of laps
-    laps = 5
     TPL_ROUTE = (
         ("Zone_A",)
         + ("Zone_B", "Zone_C", "Zone_D", "Zone_E") * laps
@@ -564,6 +564,9 @@ if __name__ == "__main__":
     print("Creating XML internal points")
 
     N = int(sys.argv[1])
-    x1 = create_xml_simulation(N)
-    x1.write(f"ring_{N}_cav.xml", pretty_print=True, encoding="UTF8")
+    path = str(sys.argv[2])
+    x1 = create_xml_simulation(N, 2, 2)
+    filename = path + f"{os.path.sep}" + f"ring_{N}_cav.xml"
+    print(f"File created at: {filename}")
+    x1.write(filename, pretty_print=True, encoding="UTF8")
 
