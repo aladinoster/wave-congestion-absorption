@@ -197,25 +197,25 @@ def create_xml_simulation(N_HDV: int, N_CAV: int = 2) -> ET.ElementTree:
     }
 
     # Vehicle data
-    TP_VEHTYPES = (
+    TPL_VEHTYPES = (
         {"id": "HDV", "w": "-5", "kx": "0.12", "vx": "25"},
         {"id": "CAV", "w": "-5", "kx": "0.12", "vx": "25"},
     )
-    TP_ACCEL = (
+    TPL_ACCEL = (
         {"ax": "1.5", "vit_sup": "5.8"},
         {"ax": "1", "vit_sup": "8"},
         {"ax": "0.5", "vit_sup": "infini"},
     )
 
     # Road network data
-    TP_TRONCONS = ("Zone_A", "Zone_B", "Zone_C", "Zone_D", "Zone_E", "Zone_F")
-    TP_EXTREMES = ("Ext_In", "Ext_Out")
-    TP_CONNECTIONS = ("A_to_B", "B_to_C", "C_to_D", "D_to_E")
-    TP_LINKS_INTPTS = ("Zone_B", "Zone_C", "Zone_D", "Zone_E")
+    TPL_TRONCONS = ("Zone_A", "Zone_B", "Zone_C", "Zone_D", "Zone_E", "Zone_F")
+    TPL_EXTREMES = ("Ext_In", "Ext_Out")
+    TPL_CONNECTIONS = ("A_to_B", "B_to_C", "C_to_D", "D_to_E")
+    TPL_LINKS_INTPTS = ("Zone_B", "Zone_C", "Zone_D", "Zone_E")
 
     radious = 200
 
-    TP_LINKS = (
+    TPL_LINKS = (
         {
             "id": "Zone_A",
             "id_eltamont": "Ext_In",
@@ -267,8 +267,8 @@ def create_xml_simulation(N_HDV: int, N_CAV: int = 2) -> ET.ElementTree:
     )
 
     # Creation of Routing:
-    TP_CROSSINGS = TP_EXTREMES + TP_CONNECTIONS
-    TP_LINKAGE = tuple(
+    TPL_CROSSINGS = TPL_EXTREMES + TPL_CONNECTIONS
+    TPL_LINKAGE = tuple(
         (
             road.get("id_eltamont"),
             road.get("id_eltaval"),
@@ -279,19 +279,19 @@ def create_xml_simulation(N_HDV: int, N_CAV: int = 2) -> ET.ElementTree:
                 "largeur_voie": "3",
             },
         )
-        for road in TP_LINKS
+        for road in TPL_LINKS
     )
 
     # Number of laps
     laps = 5
-    TP_ROUTE = (
+    TPL_ROUTE = (
         ("Zone_A",)
         + ("Zone_B", "Zone_C", "Zone_D", "Zone_E") * laps
         + ("Zone_B", "Zone_C", "Zone_F")
     )
 
     # Demand Data
-    TP_N = ({"N": N_CAV}, {"N": N_HDV})
+    TPL_N = ({"N": N_CAV}, {"N": N_HDV})
     td = transform_dict_data
     DCT_VEHTYPES_PAR = {
         td(veh, "id"): {
@@ -301,7 +301,7 @@ def create_xml_simulation(N_HDV: int, N_CAV: int = 2) -> ET.ElementTree:
             "C": (td(veh, "kx") * td(veh, "vx") * td(veh, "w")) / (td(veh, "vx") + td(veh, "w")),
             "N": td(nveh, "N"),
         }
-        for veh, nveh in zip(TP_VEHTYPES, TP_N)
+        for veh, nveh in zip(TPL_VEHTYPES, TPL_N)
     }
     DCT_NW_DATA = {k: {"kc": d["C"] / d["vx"]} for k, d in DCT_VEHTYPES_PAR.items()}
     # Update wo assignment
@@ -309,7 +309,7 @@ def create_xml_simulation(N_HDV: int, N_CAV: int = 2) -> ET.ElementTree:
 
     # Scenario design
     rep_fnc = lambda d: "0 1" if d == "CAV" else "1 0"
-    TP_DEMAND_TIME = list(
+    TPL_DEMAND_TIME = list(
         [
             DCT_VEHTYPES_PAR.get(key).get("C"),
             value / DCT_VEHTYPES_PAR.get(key).get("C"),
@@ -326,8 +326,8 @@ def create_xml_simulation(N_HDV: int, N_CAV: int = 2) -> ET.ElementTree:
     print(f"Circle length: {2 * np.pi * radious}")
 
     # Tricking demand
-    TP_DEMAND_TIME[-1][0] = 0
-    TP_DEMAND_TIME[-1][1] = laps * 2 * np.pi * radious / 25  # estimated time 3 laps
+    TPL_DEMAND_TIME[-1][0] = 0
+    TPL_DEMAND_TIME[-1][1] = laps * 2 * np.pi * radious / 25  # estimated time 3 laps
 
     # --------------------------------------------------------------
 
@@ -350,32 +350,32 @@ def create_xml_simulation(N_HDV: int, N_CAV: int = 2) -> ET.ElementTree:
 
     # Add troncon
     troncons = ET.SubElement(trafic, "TRONCONS")
-    for tron in TP_TRONCONS:
+    for tron in TPL_TRONCONS:
         troncon = ET.SubElement(troncons, "TRONCON")
         troncon.set("id", tron)
 
     # Add vehicle_type
     vehtypes = ET.SubElement(trafic, "TYPES_DE_VEHICULE")
-    for veh in TP_VEHTYPES:
+    for veh in TPL_VEHTYPES:
         veh_type = ET.SubElement(vehtypes, "TYPE_DE_VEHICULE")
         veh_type = fix_values(veh_type, veh)
         acc_maps = ET.SubElement(veh_type, "ACCELERATION_PLAGES")
         # Add acceleration
-        for acc in TP_ACCEL:
+        for acc in TPL_ACCEL:
             acc_map = ET.SubElement(acc_maps, "ACCELERATION_PLAGE")
             acc_map = fix_values(acc_map, acc)
 
     # Adding borders + demand
     extremes = ET.SubElement(trafic, "EXTREMITES")
 
-    for ext in TP_EXTREMES:
+    for ext in TPL_EXTREMES:
         extreme = ET.SubElement(extremes, "EXTREMITE")
         extreme.set("id", ext)
         if ext == "Ext_In":
             flux_global = ET.SubElement(extreme, "FLUX_GLOBAL")
             flux = ET.SubElement(flux_global, "FLUX")
             demands = ET.SubElement(flux, "DEMANDES")
-            for level, time, _ in TP_DEMAND_TIME:
+            for level, time, _ in TPL_DEMAND_TIME:
                 demand = ET.SubElement(demands, "DEMANDE")
                 demand.set("niveau", str(level))
                 demand.set("duree", str(time))
@@ -388,14 +388,14 @@ def create_xml_simulation(N_HDV: int, N_CAV: int = 2) -> ET.ElementTree:
             route_dstn.set("coeffAffectation", "1")
             route_dstn.set("id", "R01")
             split_vehtypes = ET.SubElement(flux_global, "REP_TYPEVEHICULES")
-            for _, time, trfassg in TP_DEMAND_TIME:
+            for _, time, trfassg in TPL_DEMAND_TIME:
                 split_vehtype = ET.SubElement(split_vehtypes, "REP_TYPEVEHICULE")
                 split_vehtype.set("duree", str(time))
                 split_vehtype.set("coeffs", trfassg)
 
     # Adding internal connections
     connections = ET.SubElement(trafic, "CONNEXIONS_INTERNES")
-    for con in TP_CONNECTIONS:
+    for con in TPL_CONNECTIONS:
         connection = ET.SubElement(connections, "CONNEXION_INTERNE")
         connection.set("id", con)
 
@@ -408,7 +408,7 @@ def create_xml_simulation(N_HDV: int, N_CAV: int = 2) -> ET.ElementTree:
     links = ET.SubElement(network, "TRONCONS")
 
     # This is just an update based on the updated radious
-    TP_LINKS = (
+    TPL_LINKS = (
         {
             "id": "Zone_A",
             "id_eltamont": "Ext_In",
@@ -464,9 +464,9 @@ def create_xml_simulation(N_HDV: int, N_CAV: int = 2) -> ET.ElementTree:
 
     internal_points = create_internal_points(points_circle, circle_center)
 
-    DCT_LINKS_INTPTS = dict(zip(TP_LINKS_INTPTS, internal_points))
+    DCT_LINKS_INTPTS = dict(zip(TPL_LINKS_INTPTS, internal_points))
 
-    for tr in TP_LINKS:
+    for tr in TPL_LINKS:
         link = ET.SubElement(links, "TRONCON")
         link = fix_values(link, tr)
         if tr.get("id") in DCT_LINKS_INTPTS.keys():
@@ -480,13 +480,13 @@ def create_xml_simulation(N_HDV: int, N_CAV: int = 2) -> ET.ElementTree:
 
     # Network Creation
     RoadGraph = nx.DiGraph()
-    RoadGraph.add_nodes_from(TP_CROSSINGS)
-    RoadGraph.add_edges_from(TP_LINKAGE)
+    RoadGraph.add_nodes_from(TPL_CROSSINGS)
+    RoadGraph.add_edges_from(TPL_LINKAGE)
 
     # Exchange in between RoadNetwork and Linkage network
     LinkageGraph = create_line_graph(RoadGraph)
 
-    dct_distributors = {crs: [] for crs in TP_CONNECTIONS}
+    dct_distributors = {crs: [] for crs in TPL_CONNECTIONS}
 
     for edge in LinkageGraph.edges():
         node = LinkageGraph.get_edge_data(*edge).get("id")
@@ -504,7 +504,7 @@ def create_xml_simulation(N_HDV: int, N_CAV: int = 2) -> ET.ElementTree:
             out_mvt.set("id_troncon_aval", edge[1])
 
     endings = ET.SubElement(assignments, "EXTREMITES")
-    for ending in TP_EXTREMES:
+    for ending in TPL_EXTREMES:
         ET.SubElement(endings, "EXTREMITE", id=ending)
 
     # Adding Single Route
@@ -512,7 +512,7 @@ def create_xml_simulation(N_HDV: int, N_CAV: int = 2) -> ET.ElementTree:
     route = ET.SubElement(routes, "ROUTE", description="In to Out", id="R01")
     route_path = ET.SubElement(route, "TRONCONS_")
 
-    for lnk in TP_ROUTE:
+    for lnk in TPL_ROUTE:
         ET.SubElement(route_path, "TRONCON_", id=lnk)
 
     # Adding Scenario
