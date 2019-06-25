@@ -162,12 +162,12 @@ def create_xml_simulation(N_HDV: int, N_CAV: int = 2) -> ET.ElementTree:
 
     # Scenario design
     # Sequence of vehicles
-    SEQ_1 = (("HDV", N_HDV // 2), ("CAV", 1), ("HDV", N_HDV // 2), ("CAV", N_CAV - 1), ("CAV", 0))
+    SEQ_1 = (("HDV", N_HDV // 2), ("CAV", 1), ("HDV", N_HDV // 2), ("CAV", N_CAV - 1), ("NOVEH", 1))
 
     # Simulation info
     DCT_SIMULATION = {
         "id": "simID",
-        "pasdetemps": "0.3",
+        "pasdetemps": "0.1",
         "debut": "07:00:00",
         "fin": "07:15:00",
         "loipoursuite": "exacte",
@@ -307,16 +307,19 @@ def create_xml_simulation(N_HDV: int, N_CAV: int = 2) -> ET.ElementTree:
     # Update wo assignment
     [y.update(DCT_NW_DATA.get(x)) for x, y in DCT_VEHTYPES_PAR.items()]
 
+    # ********************************************************
+    # Global flux approach
+    # ********************************************************
     # Scenario design
-    rep_fnc = lambda d: "0 1" if d == "CAV" else "1 0"
-    TPL_DEMAND_TIME = list(
-        [
-            DCT_VEHTYPES_PAR.get(key).get("C"),
-            value / DCT_VEHTYPES_PAR.get(key).get("C"),
-            rep_fnc(key),
-        ]
-        for key, value in SEQ_1
-    )
+    # rep_fnc = lambda d: "0 1" if d == "CAV" else "1 0"
+    # TPL_DEMAND_TIME = list(
+    #     [
+    #         DCT_VEHTYPES_PAR.get(key).get("C"),
+    #         value / DCT_VEHTYPES_PAR.get(key).get("C"),
+    #         rep_fnc(key),
+    #     ]
+    #     for key, value in SEQ_1
+    # )
 
     # Infrastructure design
     radious = np.add.reduce(
@@ -325,9 +328,12 @@ def create_xml_simulation(N_HDV: int, N_CAV: int = 2) -> ET.ElementTree:
     print(f"R: {radious}")
     print(f"Circle length: {2 * np.pi * radious}")
 
+    # ********************************************************
+    # Global flux approach
+    # ********************************************************
     # Tricking demand
-    TPL_DEMAND_TIME[-1][0] = 0
-    TPL_DEMAND_TIME[-1][1] = laps * 2 * np.pi * radious / 25  # estimated time 3 laps
+    # TPL_DEMAND_TIME[-1][0] = 0
+    # TPL_DEMAND_TIME[-1][1] = laps * 2 * np.pi * radious / 25  # estimated time 3 laps
 
     # --------------------------------------------------------------
 
@@ -372,26 +378,56 @@ def create_xml_simulation(N_HDV: int, N_CAV: int = 2) -> ET.ElementTree:
         extreme = ET.SubElement(extremes, "EXTREMITE")
         extreme.set("id", ext)
         if ext == "Ext_In":
-            flux_global = ET.SubElement(extreme, "FLUX_GLOBAL")
-            flux = ET.SubElement(flux_global, "FLUX")
-            demands = ET.SubElement(flux, "DEMANDES")
-            for level, time, _ in TPL_DEMAND_TIME:
-                demand = ET.SubElement(demands, "DEMANDE")
-                demand.set("niveau", str(level))
-                demand.set("duree", str(time))
-            split_ratios = ET.SubElement(flux, "REP_DESTINATIONS")
-            split_ratio = ET.SubElement(split_ratios, "REP_DESTINATION")
-            destination = ET.SubElement(split_ratio, "DESTINATION")
-            destination.set("coeffOD", "1")
-            destination.set("sortie", "Ext_Out")
-            route_dstn = ET.SubElement(destination, "ROUTE")
-            route_dstn.set("coeffAffectation", "1")
-            route_dstn.set("id", "R01")
-            split_vehtypes = ET.SubElement(flux_global, "REP_TYPEVEHICULES")
-            for _, time, trfassg in TPL_DEMAND_TIME:
-                split_vehtype = ET.SubElement(split_vehtypes, "REP_TYPEVEHICULE")
-                split_vehtype.set("duree", str(time))
-                split_vehtype.set("coeffs", trfassg)
+            flux_vehs = ET.SubElement(extreme, "FLUX_TYPEVEHS")
+            for veh_type, veh_par in DCT_VEHTYPES_PAR.items():
+                flux_veh = ET.SubElement(flux_vehs, "FLUX_TYPEVEH")
+                flux_veh.set("id_typevehicule", veh_type)
+                flux = ET.SubElement(flux_veh, "FLUX")
+                demands = ET.SubElement(flux, "DEMANDES")
+                for demand in SEQ_1:
+                    vtype, dmdval = demand
+                    bvtype = vtype == veh_type
+                    [
+                        ET.SubElement(
+                            demands,
+                            "DEMANDE",
+                            niveau=str(veh_par.get("C") * bvtype),
+                            duree=str(1 // veh_par.get("C")),
+                        )
+                        for _ in range(dmdval)
+                    ]
+                split_ratios = ET.SubElement(flux, "REP_DESTINATIONS")
+                split_ratio = ET.SubElement(split_ratios, "REP_DESTINATION")
+                destination = ET.SubElement(split_ratio, "DESTINATION")
+                destination.set("sortie", "Ext_Out")
+                destination.set("coeffOD", "1")
+                route_dstn = ET.SubElement(destination, "ROUTE")
+                route_dstn.set("coeffAffectation", "1")
+                route_dstn.set("id", "R01")
+            # ********************************************************
+            # Global flux approach
+            # ********************************************************
+            # flux_global = ET.SubElement(extreme, "FLUX_GLOBAL")
+            # flux = ET.SubElement(flux_global, "FLUX")
+            # demands = ET.SubElement(flux, "DEMANDES")
+            # for level, time, _ in TPL_DEMAND_TIME:
+            #     demand = ET.SubElement(demands, "DEMANDE")
+            #     demand.set("niveau", str(level))
+            #     demand.set("duree", str(time))
+            # split_ratios = ET.SubElement(flux, "REP_DESTINATIONS")
+            # split_ratio = ET.SubElement(split_ratios, "REP_DESTINATION")
+            # destination = ET.SubElement(split_ratio, "DESTINATION")
+            # destination.set("coeffOD", "1")
+            # destination.set("sortie", "Ext_Out")
+            # route_dstn = ET.SubElement(destination, "ROUTE")
+            # route_dstn.set("coeffAffectation", "1")
+            # route_dstn.set("id", "R01")
+            # split_vehtypes = ET.SubElement(flux_global, "REP_TYPEVEHICULES")
+            # for _, time, trfassg in TPL_DEMAND_TIME:
+            #     split_vehtype = ET.SubElement(split_vehtypes, "REP_TYPEVEHICULE")
+            #     split_vehtype.set("duree", str(time))
+            #     split_vehtype.set("coeffs", trfassg)
+            # *************************************************************
 
     # Adding internal connections
     connections = ET.SubElement(trafic, "CONNEXIONS_INTERNES")
