@@ -9,7 +9,7 @@ Andres Ladino, Aurelien Duret
 
 ## Overview 
 
-This repository contains source code used to generate the example in *"A Control Strategy for CAV towards the Absorption of Traffic Oscillations"* by  [Andres Ladino](https://www.andresladino.com), [Aurelien Duret](https://www.researchgate.net/profile/Aurelien_Duret). The objective of this research is to 
+This repository contains source code used to generate the example in *"A Control Strategy for CAV towards the Absorption of Traffic Oscillations"* by  [Andres Ladino](https://www.andresladino.com), [Aurelien Duret](https://www.researchgate.net/profile/Aurelien_Duret). The objective of this research is to design a mechanism to absorb congestion waves via Connected & Autonomous Vehicles. 
 
 **Scenario**
 
@@ -29,7 +29,7 @@ git clone --recursive https://github.com/aladinoster/wave-congestion-absorption.
 
 ## License
 
-These notebooks are licensed under [MIT License](LICENSE.md)
+These notebooks are licensed under [MIT License](LICENSE)
 
 ## Contact 
 
