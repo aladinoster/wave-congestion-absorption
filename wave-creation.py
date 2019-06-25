@@ -8,19 +8,19 @@
 
 import os
 
-from symupy.api import Simulation
+from symupy.api import Simulator
 
 if __name__ == "__main__":
 
-    # Load simulation
-    sim_path = os.path.join(os.getcwd(), *("network", "wave-absorption.xml"))
-    print(f"Simulation under consideration:{sim_path}")
-
-    # Declare simulation
-    simulation = Simulation(sim_path)
-
     # Modify the simulation insert points
+    filename_path = os.path.join(os.getcwd(), "network/ring_48_cav.xml")
+    sim_path = os.path.join(os.getcwd(), "symupy/lib/darwin/libSymuVia.dylib")
+    sim_instance = Simulator.from_path(filename_path, sim_path)
+    sim_instance
 
+    with sim_instance as s:
+        while s.do_next:
+            s.run_step()
 
 #     # 1. Declare V2V Network based on the vehicle type?
 
