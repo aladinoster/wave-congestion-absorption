@@ -1,3 +1,5 @@
+*.pytest*
+*.ipynb_checkpoints
 .vscode
 *cache*
 
