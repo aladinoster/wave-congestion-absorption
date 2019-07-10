@@ -14,13 +14,15 @@ if __name__ == "__main__":
 
     # Modify the simulation insert points
     filename_path = os.path.join(os.getcwd(), "network/ring_48_cav.xml")
-    sim_path = os.path.join(os.getcwd(), "symupy/lib/darwin/libSymuVia.dylib")
+    sim_path = os.path.join("/Users/ladino/Google Drive/Platform/symuvia/osx-64/libSymuVia.dylib")
     sim_instance = Simulator.from_path(filename_path, sim_path)
     sim_instance
 
     with sim_instance as s:
         while s.do_next:
             s.run_step()
+            if s.state.vehicle_in_network("6"):
+                s.state.vehicle
 
 #     # 1. Declare V2V Network based on the vehicle type?
 
