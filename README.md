@@ -17,14 +17,22 @@ This repository contains source code used to generate the example in *"A Control
 
 ## Structure 
 
-[Notebooks](notebook.ipynb): Contains the files to reproduce this results. 
+[Notebooks](notebook.ipynb): Contains the files to reproduce the paper results. 
 
 ## Launching simulations 
 
-Before launching simulations be sure to clone this repository in this way: 
+Download this repository
 
 ```{bash}
-git clone --recursive https://github.com/aladinoster/wave-congestion-absorption.git
+git clone https://github.com/aladinoster/wave-congestion-absorption.git
+```
+
+Be sure to get [conda](https://www.anaconda.com/distribution/), then:
+
+```{bash}
+conda env create -f environment.yml
+conda activate wavabs
+jupyter lab Notebbok.ipynb
 ```
 
 ## License
