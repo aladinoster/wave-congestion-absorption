@@ -1,0 +1,17 @@
+name: wavabs
+
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.7
+  - jupyterlab
+  - ipykernel
+  - black
+  - pytest
+  - matplotlib
+  - ipywidgets
+  - numpy 
+  - mkl
+  - pip:
+    - git+https://github.com/symuvia/symupy.git@dev
