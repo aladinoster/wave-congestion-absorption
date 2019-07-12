@@ -6,23 +6,42 @@
     Check README.md for more details
 """
 
+import symupy
+from symupy.api import Simulator
+from symupy.components import VehicleControl
+import numpy as np
 import os
 
-from symupy.api import Simulator
 
 if __name__ == "__main__":
 
     # Modify the simulation insert points
     filename_path = os.path.join(os.getcwd(), "network/ring_48_cav.xml")
-    sim_path = os.path.join("/Users/ladino/Google Drive/Platform/symuvia/osx-64/libSymuVia.dylib")
+    sim_path = os.path.join(
+        "/Users/ladino/Documents/03-Code/02-Python/libraries/symupy/lib/osx-64/libSymuVia.dylib"
+    )
     sim_instance = Simulator.from_path(filename_path, sim_path)
-    sim_instance
 
-    with sim_instance as s:
-        while s.do_next:
-            s.run_step()
-            if s.state.vehicle_in_network("6"):
-                s.state.vehicle
+    # Control
+    c = VehicleControl()
+    a = np.zeros(10)
+    a[5] = -1
+    a
+
+    ac = iter(a)
+
+    with s as sim:
+        while sim.do_next:
+            sim.run_step()
+            acc = next(ac)
+            #         print(s.state.current_time)
+            print(s.state.current_time == "5.00")
+            print(s.state.vehicles)
+            if sim.state.is_vehicle_in_network("0", "1") and sim.state.current_time == "7.00":
+                c = VehicleControl("manual", 1, s.state.vehicles[0])
+                c.set_manual_control(acc)
+                sim.stop_step()
+
 
 #     # 1. Declare V2V Network based on the vehicle type?
 
