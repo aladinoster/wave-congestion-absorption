@@ -12,6 +12,8 @@ dependencies:
   - matplotlib
   - ipywidgets
   - numpy 
+  - pandas
   - mkl
+  - pip
   - pip:
     - git+https://github.com/symuvia/symupy.git@dev
