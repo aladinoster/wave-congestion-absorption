@@ -37,7 +37,7 @@ jupyter lab Notebbok.ipynb
 
 ## License
 
-These notebooks are licensed under [MIT License](LICENSE)
+Thee code here contained is licensed under [MIT License](LICENSE)
 
 ## Contact 
 

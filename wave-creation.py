@@ -30,7 +30,7 @@ if __name__ == "__main__":
 
     ac = iter(a)
 
-    with s as sim:
+    with sim_instance as s:
         while sim.do_next:
             sim.run_step()
             acc = next(ac)
